@@ -8,7 +8,7 @@ import Report from './page/report';
 
 const App = () => {
   
-  let questions = [
+  let questions = useRef([
     {
       key: "age",
       type: "number",
@@ -129,163 +129,64 @@ const App = () => {
         },
         {
           type: "text",
-          title: <span>Car " + <span className='text-violet-700'>make</span></span>,
+          title: <span>Car <span className='text-violet-700'>model</span></span>,
         },
       ]
     },
-  ];
+  ]);
+  const [name, setName] = useState<any>();
 
-  const userIdRef = useRef(new Date().getTime());
-  
-  const [surveyData, setSurveyData] = useState<any>([]);
-  const [key, getsurveyData] = useState([]);
-  const [username, setName] = useState<string>('');
-  const [currentQuestion, setCurrentQuestion] = useState<any>();
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-
-  // Set storage
-  useEffect(() => {
-    const _obj:any = JSON.parse(localStorage.getItem('talexio') ?? "{}");
-    _obj[userIdRef.current] = surveyData;
-    localStorage.setItem('talexio', JSON.stringify(_obj));
-  }, [surveyData]);
-
-  // read storage
-  useEffect(() => {
-    const _obj:any = JSON.parse(localStorage.getItem('talexio') ?? '{}');
-    if (_obj[userIdRef.current]){
-      setSurveyData(_obj[userIdRef.current]);
-    }
-  }, []);
-  
-  // Update question index
-  useEffect(() => {
-    setCurrentQuestion(questions[currentQuestionIndex])
-  }, [currentQuestionIndex]);
-
-  // Update question
-  useEffect(() => {
-    // Check asking conditions
-    if (currentQuestion && currentQuestion.askConditions){
-      let successCount = 0;
-      // Check each condition is valid
-      currentQuestion.askConditions.forEach((condition:any) => {
-        let conditionSuccess:boolean = false;
-        switch (condition.operator) {
-          case "=":
-          case "==":
-            conditionSuccess = surveyData[condition.key] == condition.value;
-            break;
-          case "!=":
-          case "<>":
-            conditionSuccess = surveyData[condition.key] != condition.value;
-            break;
-          case "<":
-            conditionSuccess = surveyData[condition.key] < condition.value;
-            break;
-          case ">":
-            conditionSuccess = surveyData[condition.key] > condition.value;
-            break;
-        }
- 
-        // if success update success count
-        if (conditionSuccess) successCount++;
-      });
-
-      // if all the conditions are not satisfied, we can skip it
-      if (successCount != currentQuestion.askConditions.length){
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
-      }
-    }
-  }, [currentQuestion]);
-  
   // Init app data
   const startApp = (name:string) => {
-    setSurveyData({"name": name});
     setName(name);
     setPage("quiz");
-    startQuiz();
-    console.log(name);
-  }
-
-  // Init quiz
-  const startQuiz = () => {
-    setCurrentQuestionIndex(0);
-  }
-
-  // Store answer and render next question
-  const handleAnswer = (answer: string) => {
-    console.log(answer);
-    let _item:any = Object.assign({}, surveyData);
-    _item[currentQuestion.key] = answer;
-    setSurveyData(_item);
-
-    let nextQidx = currentQuestionIndex+1;
-
-    // Check exit conditions
-    if (currentQuestion.exitConditions){
-      let successCount = 0;
-      // Check each condition is valid
-      currentQuestion.exitConditions.forEach((condition:any) => {
-        let conditionSuccess:boolean = false;
-        switch (condition.operator) {
-          case "=":
-          case "==":
-            conditionSuccess = _item[condition.key] == condition.value;
-            break;
-          case "!=":
-          case "<>":
-            conditionSuccess = _item[condition.key] != condition.value;
-            break;
-          case "<":
-            conditionSuccess = _item[condition.key] < condition.value;
-            break;
-          case ">":
-            conditionSuccess = _item[condition.key] > condition.value;
-            break;
-        }
-
-        // if success update success count
-        if (conditionSuccess) successCount++;
-      });
-
-      // if all the conditions are satisfied, we can exit now
-      if (successCount == currentQuestion.exitConditions.length){
-        setPage('exit');
-      }
-    }
-
-    if (nextQidx === questions.length){
-      setPage("end");
-    } else {
-      setCurrentQuestionIndex(nextQidx);
-    }
   }
 
   const showReport = () => {
-    setTimeout(() => {
-      setPage('report');
-    }, 100);
+    setPage('report');
   }
 
-  const [page, setPage] = useState<string>("");
-  const getPage = () =>{
+  const [response, setResponse] = useState<any>();
+  useEffect(() => {
+    if (response) setPage('exit');
+  }, [response]);
+
+  const handleExit = (_response:string) => {
+    console.log("handleExit", _response);
+    setResponse(_response);
+    setPage('exit');
+  }
+
+  const restart = () => {
+    setResponse(undefined);
+    setPage('');
+  }
+
+  const [page, setPage] = useState<string>();
+  const [pageElement, setPageElement] = useState<any>(<></>);
+
+  useEffect(()=>{
+    let elem:any = <></>;
     switch (page) {
       case "quiz":
-        return <Quiz question={currentQuestion} onSubmit={(answer:string) => handleAnswer(answer)}></Quiz>;
-      case "end":
+        elem = <Quiz questions={questions.current} data={{"name": name}} onExit={(_response:any) => handleExit(_response)} onRestart={() => restart()}></Quiz>;
+        break;
       case "exit":
-        return <Outro>{currentQuestion.response}</Outro>;
+        elem = <Outro onRestart={() => restart()}>{response}</Outro>;
+        break;
       case "report":
-        return <Report></Report>;
+        elem = <Report></Report>;
+        break;
       default:
-        return <Intro onStart={ (name:string) => startApp(name) } onShowReport={ () => showReport() } />;
+        elem = <Intro onStart={ (name:string) => startApp(name) } onShowReport={ () => showReport() } />;
+        break;
     }
-  }
+    setPageElement(elem)
+  }, [page, name]);
 
   return (
     <div className="App">
-      {getPage()}
+      {pageElement}
     </div>
   );
 }

@@ -1,6 +1,14 @@
 import React, { PropsWithChildren } from 'react';
 
-function Outro({children}: PropsWithChildren) {
+type ChildProps = {
+  onRestart?:() => void
+  children?: React.ReactNode
+};
+
+const Outro: React.FC<ChildProps> = ({
+  onRestart=()=>{},
+  children = <></>,
+}) => {
   return (
     <div className="outro-page">
       <div className='flex items-center justify-center'>
@@ -18,6 +26,12 @@ function Outro({children}: PropsWithChildren) {
             <div className='text-xl w-2/4 mx-auto my-0 mt-5'>
               We truly value the information you have provided. Your responses will contribute to our analyses of the texts and suggest new lines of approach to the corpus data.
             </div>
+
+            
+            <div className='mt-16 text-center'>
+                <a className='text-violet-700 underline text-lg cursor-pointer' onClick={() => onRestart()}>Restart Survey</a>
+            </div>
+
         </div>
       </div>
     </div>
