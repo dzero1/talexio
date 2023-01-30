@@ -107,7 +107,10 @@ const App = () => {
           type: "dropdown",
           title: <span>Car <span className='text-violet-700'>make</span></span>,
           answers: [
-            'BMW',
+            {
+              label: 'BMW',
+              validation: '^[XZ][0-9]{1}|^[M]?\d+([di]{1})?$',
+            },
             'Chevrolet',
             'Honda',
             'Nissan',
@@ -169,13 +172,13 @@ const App = () => {
     let elem:any = <></>;
     switch (page) {
       case "quiz":
-        elem = <Quiz questions={questions.current} data={{"name": name}} onExit={(_response:any) => handleExit(_response)} onRestart={() => restart()}></Quiz>;
+        elem = <Quiz questions={questions.current} name={name} onExit={(_response:any) => handleExit(_response)} onRestart={() => restart()}></Quiz>;
         break;
       case "exit":
         elem = <Outro onRestart={() => restart()}>{response}</Outro>;
         break;
       case "report":
-        elem = <Report></Report>;
+        elem = <Report onRestart={() => restart()} />;
         break;
       default:
         elem = <Intro onStart={ (name:string) => startApp(name) } onShowReport={ () => showReport() } />;

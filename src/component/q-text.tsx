@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 
 type ChildProps = {
   question?:any,
+  validator?:any,
   onUpdate?:(val: string) => void
 };
 
 const QuizTypeText: React.FC<ChildProps> = ({
     onUpdate=()=>{},
-  question = undefined
+  question = undefined,
+  validator = undefined
 }) => {
 
   const [error, setError] = useState<any>();

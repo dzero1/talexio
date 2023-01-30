@@ -32,7 +32,7 @@ const QuizTypeDropdown: React.FC<ChildProps> = ({
         className="w-72 p-2 mx-auto my-0 mb-5 rounded-md border border-violet-700">
           <option disabled value=""> -- Select --</option>
           {
-            question.answers.map((elem:string) => <option key={elem} value={elem}>{elem}</option> )
+            question.answers.map((elem:any) => <option key={elem.label ? elem.label : elem} value={elem.label ? elem.label : elem}>{elem.label ? elem.label : elem}</option> )
           }
       </select>
     </div>);

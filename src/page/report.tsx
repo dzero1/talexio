@@ -5,7 +5,15 @@ import { Report2 } from "../component/report-2";
 import { Report3 } from "../component/report-3";
 import { Report4 } from "../component/report-4";
 
-const Report = () => {
+type ChildProps = {
+  onRestart?:() => void
+};
+
+let multiAnswer = {};
+
+const Report: React.FC<ChildProps> = ({
+  onRestart=()=>{},
+}) => {
 
   const [report, setReport] = useState<any>('1');
 
@@ -57,7 +65,7 @@ const Report = () => {
     <div className="quiz-page bg-violet-100 w-screen h-full min-h-screen p-10 pl-20">
       <div className='flex items-start justify-start'>
         <div className='w-1/4 mx-auto my-0 items-start justify-start text-left'>
-          <div>
+          <div className="cursor-pointer" onClick={()=>onRestart()}>
             <h1 className='text-7xl font-extrabold'>Talexio</h1>
             <h1 className='text-3xl font-extrabold text-left'>Quick <span className='text-violet-700'>Survey</span></h1>
           </div>

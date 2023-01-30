@@ -5,7 +5,7 @@ import QuizTypeText from "../component/q-text";
 
 type ChildProps = {
   questions?:Array<any>,
-  data?:any,
+  name?:string,
   onExit?:(val: string) => void
   onRestart?:() => void
 };
@@ -16,7 +16,7 @@ const Quiz: React.FC<ChildProps> = ({
   onExit=()=>{},
   onRestart=()=>{},
   questions = [],
-  data = {},
+  name = '',
 }) => {
   const userIdRef = useRef(new Date().getTime());
   const [surveyData, setSurveyData] = useState<any>({});
@@ -38,6 +38,7 @@ const Quiz: React.FC<ChildProps> = ({
   useEffect(() => {
     const _obj:any = JSON.parse(localStorage.getItem('talexio') ?? '{}');
     if (_obj[userIdRef.current]){
+      if (!_obj[userIdRef.current]['name']) _obj[userIdRef.current]['name'] = name;
       setSurveyData(_obj[userIdRef.current]);
     }
     setCurrentQuestionIndex(0)
